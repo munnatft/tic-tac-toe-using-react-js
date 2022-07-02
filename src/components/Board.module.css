@@ -1,0 +1,6 @@
+.board {
+    margin-top: 4rem;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-gap: 0.75rem;
+}
