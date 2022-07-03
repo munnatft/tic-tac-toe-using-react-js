@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './App.module.css';
 import Board from './components/Board';
 
@@ -6,8 +6,30 @@ const WIN_CONDITIONS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],
 
 const App = () => {
   const [board,setBoard] = useState(Array(9).fill(null));
-  const [turnForX , setTurnForX] = useState(true);
+  const [turnForX , setTurnForX] = useState(false);
+  const [result,setResult] = useState({winner : "", status:""})
+  const [gameOver,setGameOver] = useState(false);
 
+  useEffect(()=>{
+    setTurnForX(!turnForX)
+    const winner = checkWinner(board);
+    if(winner) {
+      if (winner === "X") {
+        setResult({winner:"Player 1", status : "won"})
+      } else {
+        setResult({winner:"Player 2", status : "won"})
+      }
+      setGameOver(true)
+    } else {
+      checkIfTie(board)
+    }
+  },[board])
+
+  useEffect(() => {
+    if(gameOver) {
+      setTimeout(()=> resetGame(),5000)
+    }
+  },[gameOver])
 
   const handleUpdateBoard = (boxIndex) => {
     const updatedBoard = board.map((value,index)=> {
@@ -17,18 +39,38 @@ const App = () => {
         return value;
       }
     })
-    checkWinner(updatedBoard)
-    setBoard(updatedBoard);
-    setTurnForX(!turnForX)
+    setBoard(updatedBoard)
   }
 
   const checkWinner = (board) => {
-    WIN_CONDITIONS.forEach((value) => {
-      const [i,j,k] = value;
+    let winner;
+    WIN_CONDITIONS.forEach((win) => {
+      const [i,j,k] = win;
       if(board[i] && board[i]===board[j] && board[j]===board[k]) {
-        console.log("win")
+        winner =  board[i];
+      } 
+    })
+    return winner;
+  }
+
+  const checkIfTie = (board) => {
+    let allBoxesFilled = true;
+    board.forEach((val) => {
+      if(val===null) {
+        allBoxesFilled = false;
       }
     })
+    if(allBoxesFilled) {
+      setResult({winner:"No one", status : "draw"})
+      setGameOver(true)
+    }
+  }
+
+  const resetGame = () => {
+    setBoard(Array(9).fill(null))
+    setTurnForX(false)
+    setResult({winner : "", status:""})
+    setGameOver(false)
   }
 
   return (
@@ -39,6 +81,8 @@ const App = () => {
           <span>Player 2</span>
       </div>
       <Board board={board} updateBoard={handleUpdateBoard} />
+      <div>{result.status === "draw" ? "The match is drawn." : result.status !== "" && result.winner !=="" && `${result.winner} won the match.`}</div>
+      <div className={styles.reset} onClick={resetGame} >Reset Game</div>
     </div>
   )
 }
