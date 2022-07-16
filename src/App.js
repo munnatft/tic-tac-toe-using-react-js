@@ -15,14 +15,15 @@ const App = () => {
     const winner = checkWinner(board);
     if(winner) {
       if (winner === "X") {
-        setResult({winner:"Player 1", status : "won"})
+        setResult({winner:"Player X", status : "won"})
       } else {
-        setResult({winner:"Player 2", status : "won"})
+        setResult({winner:"Player O", status : "won"})
       }
       setGameOver(true)
     } else {
       checkIfTie(board)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[board])
 
   useEffect(() => {
@@ -77,11 +78,11 @@ const App = () => {
     <div className={styles.game}>
       <h1 className={styles.game_heading}>Tic Tac Toe Game</h1>
       <div className={styles.players_box}>
-          <span>Player 1</span>
-          <span>Player 2</span>
+          <span className={turnForX ? styles.active : ""}>Player X</span>
+          <span className={!turnForX ? styles.active : ""}>Player O</span>
       </div>
-      <Board board={board} updateBoard={handleUpdateBoard} />
-      <div>{result.status === "draw" ? "The match is drawn." : result.status !== "" && result.winner !=="" && `${result.winner} won the match.`}</div>
+      <Board board={board} updateBoard={handleUpdateBoard} gameOver={gameOver} />
+      <div className={styles.result}>{result.status === "draw" ? "The match is drawn." : result.status !== "" && result.winner !=="" && `${result.winner} won the match.`}</div>
       <div className={styles.reset} onClick={resetGame} >Reset Game</div>
     </div>
   )
